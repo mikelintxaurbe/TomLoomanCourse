@@ -4,31 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "SMagicProjectile.generated.h"
+#include "SExplosionEffect.generated.h"
 
+class UAudioComponent;
 class UParticleSystemComponent;
-class UProjectileMovementComponent;
-class USphereComponent;
 
 UCLASS()
-class ACTIONROGUELIKE_API ASMagicProjectile : public AActor
+class ACTIONROGUELIKE_API ASExplosionEffect : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ASMagicProjectile();
+	ASExplosionEffect();
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
-	USphereComponent* SphereComp;
+    UPROPERTY(VisibleAnywhere)
+    UParticleSystemComponent* VFX;
 
-	UPROPERTY(VisibleAnywhere)
-	UProjectileMovementComponent* MovementComp;
-
-	UPROPERTY(VisibleAnywhere)
-	UParticleSystemComponent* EffectComp;
+    UPROPERTY(VisibleAnywhere)
+    UAudioComponent* SFX;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
