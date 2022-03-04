@@ -3,6 +3,8 @@
 
 #include "SItemChest.h"
 
+#include <Particles/ParticleSystemComponent.h>
+
 // Sets default values
 ASItemChest::ASItemChest()
 {
@@ -17,6 +19,9 @@ ASItemChest::ASItemChest()
 
     GoldMesh = CreateDefaultSubobject<UStaticMeshComponent>("GoldMesh");
     GoldMesh->SetupAttachment(RootComponent);
+
+    GoldFlashingVFX = CreateDefaultSubobject<UParticleSystemComponent>("GoldFlashingVFX");
+    GoldFlashingVFX->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned

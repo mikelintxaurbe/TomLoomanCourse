@@ -7,6 +7,8 @@
 #include "SGameplayInterface.h"
 #include "SItemChest.generated.h"
 
+class UParticleSystemComponent;
+
 UCLASS()
 class ACTIONROGUELIKE_API ASItemChest : public AActor, public ISGameplayInterface
 {
@@ -24,14 +26,17 @@ public:
 
 protected:
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     UStaticMeshComponent* BaseMesh;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     UStaticMeshComponent* LidMesh;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     UStaticMeshComponent* GoldMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UParticleSystemComponent* GoldFlashingVFX;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
