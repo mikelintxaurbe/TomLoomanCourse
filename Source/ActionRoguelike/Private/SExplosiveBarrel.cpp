@@ -49,6 +49,7 @@ void ASExplosiveBarrel::OnStaticMeshHit(UPrimitiveComponent* HitComponent, AActo
 {
     if (OtherActor->IsA<ASMagicProjectile>())
     {
+        UE_LOG(LogTemp, Log, TEXT("[ASExplosiveBarrel] Actor %s hit StaticMesh at location %s"), *GetNameSafe(OtherActor), *Hit.ImpactPoint.ToString());
         Explode();
     }
 }
