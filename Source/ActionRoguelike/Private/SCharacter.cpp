@@ -8,6 +8,8 @@
 #include <GameFramework/SpringArmComponent.h>
 #include <Kismet/KismetMathLibrary.h>
 
+#include "ActionRoguelike/Public/SInteractionComponent.h"
+
 // Sets default values
 ASCharacter::ASCharacter()
 {
@@ -20,6 +22,8 @@ ASCharacter::ASCharacter()
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
+
+    InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -59,20 +63,35 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::PrimaryAttack()
 {
-	const FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");	// right hand
+    if (ensure(AttackAnim))
+    {
+        PlayAnimMontage(AttackAnim);
 
-	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+        GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimerElapsed, ProjectileSpawnDelay);
+    }
+}
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+void ASCharacter::PrimaryAttack_TimerElapsed()
+{
+    const FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");	// right hand
 
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+    FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 }
 
 void ASCharacter::Jump()
 {
     // ACharacter already implements jumping for us
     Super::Jump();
+}
+
+void ASCharacter::PrimaryInteract()
+{
+    InteractionComp->PrimaryInteract();
 }
 
 // Called every frame
@@ -94,7 +113,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryAttack);
-
     PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ASCharacter::Jump);
+    PlayerInputComponent->BindAction("PrimaryInteract", EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryInteract);
 }
 

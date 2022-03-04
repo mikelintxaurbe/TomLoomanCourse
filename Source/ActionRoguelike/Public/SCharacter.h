@@ -7,6 +7,7 @@
 #include "SCharacter.generated.h"
 
 class UCameraComponent;
+class USInteractionComponent;
 class USpringArmComponent;
 
 UCLASS()
@@ -16,8 +17,14 @@ class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 
 protected:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Primary Attack")
 	TSubclassOf<AActor> ProjectileClass;
+
+    UPROPERTY(EditAnywhere, Category = "Primary Attack")
+    UAnimMontage* AttackAnim;
+
+    UPROPERTY(EditAnywhere, Category = "Primary Attack")
+    float ProjectileSpawnDelay = 0.2f;
 
 public:
 	// Sets default values for this character's properties
@@ -31,6 +38,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
+    UPROPERTY(VisibleAnywhere)
+    USInteractionComponent* InteractionComp;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -39,8 +49,11 @@ protected:
 	void MoveRight(float Value);
 
 	void PrimaryAttack();
+    void PrimaryAttack_TimerElapsed();
 
     void Jump();
+
+    void PrimaryInteract();
 
 public:	
 	// Called every frame
@@ -48,5 +61,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+private:
+    FTimerHandle TimerHandle_PrimaryAttack;
 
 };
