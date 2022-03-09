@@ -26,6 +26,9 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Primary Attack")
     float ProjectileSpawnDelay = 0.2f;
 
+    UPROPERTY(EditAnywhere, Category = "Primary Attack")
+    float ProjectileTargetLinecastDistance = 100000.0f;
+
 public:
 	// Sets default values for this character's properties
 	ASCharacter();

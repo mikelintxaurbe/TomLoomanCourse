@@ -7,6 +7,7 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include <GameFramework/SpringArmComponent.h>
 #include <Kismet/KismetMathLibrary.h>
+#include <Kismet/KismetSystemLibrary.h>
 
 #include "ActionRoguelike/Public/SInteractionComponent.h"
 
@@ -71,17 +72,62 @@ void ASCharacter::PrimaryAttack()
     }
 }
 
+FVector GetProjectileTargetPosition(const AActor* Instigator, const AController* InstigatorController, const float LinecastDistance)
+{
+    check(Instigator != nullptr);
+    check(InstigatorController != nullptr);
+
+    FVector EyePosition;
+    FRotator EyeRotation;
+    InstigatorController->GetPlayerViewPoint(EyePosition, EyeRotation);
+
+    FVector LinecastEnd = EyePosition + (LinecastDistance * EyeRotation.Vector());
+
+    FCollisionObjectQueryParams ObjectQueryParams;
+    ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+    ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+    ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
+    ObjectQueryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
+    ObjectQueryParams.AddObjectTypesToQuery(ECC_Destructible);
+    ObjectQueryParams.AddObjectTypesToQuery(ECC_Vehicle);
+
+    FCollisionQueryParams& QueryParams = FCollisionQueryParams::DefaultQueryParam;
+    QueryParams.AddIgnoredActor(Instigator);
+
+    FHitResult HitResult;
+    const bool LineTraceSuccess = Instigator->GetWorld()->LineTraceSingleByObjectType(HitResult, EyePosition, LinecastEnd, ObjectQueryParams, QueryParams);
+
+    const FLinearColor DebugDrawingColor = LineTraceSuccess ? FLinearColor::Green : FLinearColor::Red;
+    constexpr float DebugDrawingDuration = 2.0f;
+
+    constexpr float DebugLineThickness = 2.0f;
+    UKismetSystemLibrary::DrawDebugLine(Instigator, EyePosition, LineTraceSuccess ? HitResult.ImpactPoint : LinecastEnd, DebugDrawingColor, DebugDrawingDuration, DebugLineThickness);
+
+    if (LineTraceSuccess)
+    {
+        constexpr float DebugSphereRadius = 15.0f;
+        UKismetSystemLibrary::DrawDebugSphere(Instigator, HitResult.ImpactPoint, DebugSphereRadius, 12, DebugDrawingColor, DebugDrawingDuration);
+
+        return HitResult.ImpactPoint;
+    }
+
+    return LinecastEnd;
+}
+
 void ASCharacter::PrimaryAttack_TimerElapsed()
 {
     const FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");	// right hand
 
-    FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+    const FVector ProjectileTarget = GetProjectileTargetPosition(this, GetController(), ProjectileTargetLinecastDistance);
 
-    FActorSpawnParameters SpawnParams;
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    SpawnParams.Instigator = this;
+    const FRotator TargetFacingRotator = UKismetMathLibrary::FindLookAtRotation(HandLocation, ProjectileTarget);
+    FTransform ProjectileSpawnTM = FTransform(TargetFacingRotator, HandLocation);
 
-    GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+    FActorSpawnParameters ProjectileSpawnParams;
+    ProjectileSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    ProjectileSpawnParams.Instigator = this;
+
+    GetWorld()->SpawnActor<AActor>(ProjectileClass, ProjectileSpawnTM, ProjectileSpawnParams);
 }
 
 void ASCharacter::Jump()
