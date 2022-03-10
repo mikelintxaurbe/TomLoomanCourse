@@ -42,6 +42,9 @@ protected:
     FAbilityData PrimaryAttackData;
 
     UPROPERTY(EditAnywhere, Category = "Abilities")
+    FAbilityData PrimaryAbilityData;
+
+    UPROPERTY(EditAnywhere, Category = "Abilities")
     FAbilityData SecondaryAbilityData;
 
 public:
@@ -66,6 +69,7 @@ protected:
 	void MoveRight(float Value);
 
 	void PrimaryAttack();
+    void PrimaryAbility();
     void SecondaryAbility();
 
     void Jump();

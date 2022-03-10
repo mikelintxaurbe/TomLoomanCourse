@@ -67,6 +67,11 @@ void ASCharacter::PrimaryAttack()
     PerformAbility(PrimaryAttackData);
 }
 
+void ASCharacter::PrimaryAbility()
+{
+    PerformAbility(PrimaryAbilityData);
+}
+
 void ASCharacter::SecondaryAbility()
 {
     PerformAbility(SecondaryAbilityData);
@@ -101,7 +106,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
-	PlayerInputComponent->BindAction("PrimaryAttack", EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryAttack);
+    PlayerInputComponent->BindAction("PrimaryAttack", EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryAttack);
+    PlayerInputComponent->BindAction("PrimaryAbility", EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryAbility);
     PlayerInputComponent->BindAction("SecondaryAbility", EInputEvent::IE_Pressed, this, &ASCharacter::SecondaryAbility);
     PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ASCharacter::Jump);
     PlayerInputComponent->BindAction("PrimaryInteract", EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryInteract);
