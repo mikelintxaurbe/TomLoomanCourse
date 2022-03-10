@@ -3,7 +3,9 @@
 
 #include "SBlackholeProjectile.h"
 
-void ASBlackholeProjectile::OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+bool ASBlackholeProjectile::IsOverlapValid(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    // Don't call Super implementation, we want to do all checks from BP
+    // Ignore all overlaps from code, we're doing the overlap checks in Blueprint for now
+    return false;
 }
+

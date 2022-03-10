@@ -66,9 +66,45 @@ void ASBaseProjectile::PreInitializeComponents()
     MovementComp->InitialSpeed = MovementSpeed;
 }
 
+bool ASBaseProjectile::IsOverlapValid(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    if (bIgnoreInstigatorWhenOverlap)
+    {
+        return OtherActor == Cast<AActor>(GetInstigator());
+    }
+
+    return true;
+}
+
+void ASBaseProjectile::Explode()
+{
+    UWorld* World = GetWorld();
+
+    const FTransform ActorTM = GetActorTransform();
+    UGameplayStatics::SpawnEmitterAtLocation(World, ImpactVFX, ActorTM);
+    UGameplayStatics::SpawnSoundAtLocation(World, ImpactSFX, ActorTM.GetLocation());
+}
+
+void ASBaseProjectile::OnLifetimeTimerElapsed()
+{
+    UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnLifetimeTimerElapsed()"), *GetNameSafe(this));
+
+    if (bExplodeOnLifetimeEnd)
+    {
+        Explode();
+    }
+
+    DestroyProjectile();
+}
+
+void ASBaseProjectile::DestroyProjectile()
+{
+    GetWorld()->DestroyActor(this);
+}
+
 void ASBaseProjectile::OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    if (bIgnoreInstigatorWhenOverlap && OtherActor == Cast<AActor>(GetInstigator()))
+    if (IsOverlapValid(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult) == false)
     {
         return;
     }
@@ -85,22 +121,14 @@ void ASBaseProjectile::OnSphereCollisionBeginOverlap(UPrimitiveComponent* Overla
     constexpr float DebugTextDuration = 2.0f;
     UKismetSystemLibrary::DrawDebugString(this, GetActorLocation(), DebugStringText, nullptr, FColor::Red, DebugTextDuration);
 
-    UWorld* World = GetWorld();
-
-    const FTransform ActorTM = GetActorTransform();
-    UGameplayStatics::SpawnEmitterAtLocation(World, ImpactVFX, ActorTM);
-    UGameplayStatics::SpawnSoundAtLocation(World, ImpactSFX, ActorTM.GetLocation());
-
-    if (bDestroyOnHit)
+    if (bExplodeOnOverlap)
     {
-        World->DestroyActor(this);
+        Explode();
     }
-}
 
-void ASBaseProjectile::OnLifetimeTimerElapsed()
-{
-    UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnLifetimeTimerElapsed()"), *GetNameSafe(this));
-
-    GetWorld()->DestroyActor(this);
+    if (bDestroyOnOverlap)
+    {
+        DestroyProjectile();
+    }
 }
 

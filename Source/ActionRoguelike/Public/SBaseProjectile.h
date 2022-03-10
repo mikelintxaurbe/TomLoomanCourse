@@ -41,7 +41,13 @@ public:
     float Lifetime = InfiniteLifetime;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
-    bool bDestroyOnHit = true;
+    bool bDestroyOnOverlap = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
+    bool bExplodeOnOverlap = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
+    bool bExplodeOnLifetimeEnd = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
     bool bIgnoreInstigatorWhenMoving = true;
@@ -66,13 +72,20 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
     USoundBase* ImpactSFX;
 
-    // Only the base implementation needs to be an UFUNCTION, other derived classes just have to override this function without the UFUNCTION() macro
     UFUNCTION()
-    virtual void OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+    virtual bool IsOverlapValid(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+    virtual void Explode();
 
     virtual void OnLifetimeTimerElapsed();
 
+    virtual void DestroyProjectile();
+
 private:
+    // Only the base implementation needs to be an UFUNCTION, other derived classes just have to override this function without the UFUNCTION() macro
+    UFUNCTION()
+    void OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
     static const float InfiniteLifetime/* = -1.0f*/;
     FTimerHandle TimerHandle_Lifetime;
 
