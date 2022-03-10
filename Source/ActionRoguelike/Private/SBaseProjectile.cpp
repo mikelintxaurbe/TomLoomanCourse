@@ -70,7 +70,7 @@ bool ASBaseProjectile::IsOverlapValid(UPrimitiveComponent* OverlappedComponent, 
 {
     if (bIgnoreInstigatorWhenOverlap)
     {
-        return OtherActor == Cast<AActor>(GetInstigator());
+        return OtherActor != Cast<AActor>(GetInstigator());
     }
 
     return true;

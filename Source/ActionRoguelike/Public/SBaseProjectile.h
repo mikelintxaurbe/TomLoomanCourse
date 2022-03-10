@@ -72,7 +72,6 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
     USoundBase* ImpactSFX;
 
-    UFUNCTION()
     virtual bool IsOverlapValid(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
     virtual void Explode();
