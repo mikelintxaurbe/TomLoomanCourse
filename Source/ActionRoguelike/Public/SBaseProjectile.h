@@ -60,7 +60,7 @@ protected:
 
     // Only the base implementation needs to be an UFUNCTION, other derived classes just have to override this function without the UFUNCTION() macro
     UFUNCTION()
-    virtual void OnSphereCollisionHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+    virtual void OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
     virtual void OnLifetimeTimerElapsed();
 

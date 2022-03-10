@@ -37,13 +37,14 @@ void ASExplosiveBarrel::BeginPlay()
 	
 }
 
-//void ASExplosiveBarrel::OnStaticMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-//{
-//    if (OtherActor->IsA<ASMagicProjectile>())
-//    {
-//        Explode();
-//    }
-//}
+void ASExplosiveBarrel::OnStaticMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+    if (OtherActor->IsA<ASMagicProjectile>())
+    {
+        UE_LOG(LogTemp, Log, TEXT("[ASExplosiveBarrel] Actor %s begins to overlap StaticMesh at location %s"), *GetNameSafe(OtherActor), *SweepResult.ImpactPoint.ToString());
+        Explode();
+    }
+}
 
 void ASExplosiveBarrel::OnStaticMeshHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -65,7 +66,7 @@ void ASExplosiveBarrel::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
 
-    //StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ASExplosiveBarrel::OnStaticMeshBeginOverlap);
+    StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ASExplosiveBarrel::OnStaticMeshBeginOverlap);
     StaticMesh->OnComponentHit.AddDynamic(this, &ASExplosiveBarrel::OnStaticMeshHit);
 }
 

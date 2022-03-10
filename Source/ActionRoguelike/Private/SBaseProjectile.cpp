@@ -18,7 +18,7 @@ ASBaseProjectile::ASBaseProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
     SphereCollision = CreateDefaultSubobject<USphereComponent>("SphereCollision");
-    SphereCollision->SetCollisionProfileName("ProjectileSolid");
+    SphereCollision->SetCollisionProfileName("Projectile");
     RootComponent = SphereCollision;
 
     MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComp");
@@ -50,7 +50,7 @@ void ASBaseProjectile::BeginPlay()
     }
 
     SphereCollision->IgnoreActorWhenMoving(GetInstigator(), true);
-    SphereCollision->OnComponentHit.AddDynamic(this, &ASBaseProjectile::OnSphereCollisionHit);
+    SphereCollision->OnComponentBeginOverlap.AddDynamic(this, &ASBaseProjectile::OnSphereCollisionBeginOverlap);
 }
 
 // Called every frame
@@ -60,16 +60,17 @@ void ASBaseProjectile::Tick(float DeltaTime)
 
 }
 
-void ASBaseProjectile::OnSphereCollisionHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASBaseProjectile::OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnSphereCollisionHit()"), *GetNameSafe(this));
-    UE_LOG(LogTemp, Log, TEXT("[%s]     - Hit actor: %s"), *GetNameSafe(this), *GetNameSafe(Hit.GetActor()));
+    UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnSphereCollisionBeginOverlap()"), *GetNameSafe(this));
+    UE_LOG(LogTemp, Log, TEXT("[%s]     - Hit actor: %s"), *GetNameSafe(this), *GetNameSafe(OtherActor));
+    UE_LOG(LogTemp, Log, TEXT("[%s]     - Hit actor 2: %s"), *GetNameSafe(this), *GetNameSafe(SweepResult.GetActor()));
 
     constexpr float DebugSphereRadius = 10.0f;
     constexpr float DebugSphereDuration = 2.0f;
     UKismetSystemLibrary::DrawDebugSphere(this, GetActorLocation(), DebugSphereRadius, 12.0f, FColor::Red, DebugSphereDuration);
 
-    const FString DebugStringText = FString::Printf(TEXT("Hit actor: %s"), *GetNameSafe(Hit.GetActor()));
+    const FString DebugStringText = FString::Printf(TEXT("Hit actor: %s"), *GetNameSafe(SweepResult.GetActor()));
     constexpr float DebugTextDuration = 2.0f;
     UKismetSystemLibrary::DrawDebugString(this, GetActorLocation(), DebugStringText, nullptr, FColor::Red, DebugTextDuration);
 
