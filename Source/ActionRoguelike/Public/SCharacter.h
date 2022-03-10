@@ -10,6 +10,27 @@ class UCameraComponent;
 class USInteractionComponent;
 class USpringArmComponent;
 
+USTRUCT()
+struct FAbilityData
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere)
+    UAnimMontage* CharacterActionAnim;
+
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<AActor> ProjectileClass;
+
+    UPROPERTY(EditAnywhere)
+    FName ProjectileSpawnLocationSocketName;
+
+    UPROPERTY(EditAnywhere, Meta=(ClampMin = "0"))
+    float ProjectileSpawnDelay = 0.0f;
+
+    UPROPERTY(EditAnywhere, Meta=(ClampMin = "0"))
+    float ProjectileTargetLinecastDistance = 100000.0f;
+};
+
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 {
@@ -17,17 +38,11 @@ class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Primary Attack")
-	TSubclassOf<AActor> ProjectileClass;
+    UPROPERTY(EditAnywhere, Category = "Abilities")
+    FAbilityData PrimaryAttackData;
 
-    UPROPERTY(EditAnywhere, Category = "Primary Attack")
-    UAnimMontage* AttackAnim;
-
-    UPROPERTY(EditAnywhere, Category = "Primary Attack")
-    float ProjectileSpawnDelay = 0.2f;
-
-    UPROPERTY(EditAnywhere, Category = "Primary Attack")
-    float ProjectileTargetLinecastDistance = 100000.0f;
+    UPROPERTY(EditAnywhere, Category = "Abilities")
+    FAbilityData SecondaryAbilityData;
 
 public:
 	// Sets default values for this character's properties
@@ -48,11 +63,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Value);
-
 	void MoveRight(float Value);
 
 	void PrimaryAttack();
-    void PrimaryAttack_TimerElapsed();
+    void SecondaryAbility();
 
     void Jump();
 
@@ -66,6 +80,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
-    FTimerHandle TimerHandle_PrimaryAttack;
+    void PerformAbility(const FAbilityData& AbilityData);
+    void PerformAbility_TimerElapsed(const FAbilityData& AbilityData);
+
+    FTimerHandle PerformAbility_TimerHandle;
 
 };

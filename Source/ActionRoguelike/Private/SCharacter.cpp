@@ -64,12 +64,85 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::PrimaryAttack()
 {
-    if (ensure(AttackAnim))
-    {
-        PlayAnimMontage(AttackAnim);
+    PerformAbility(PrimaryAttackData);
+}
 
-        GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimerElapsed, ProjectileSpawnDelay);
+void ASCharacter::SecondaryAbility()
+{
+    PerformAbility(SecondaryAbilityData);
+}
+
+void ASCharacter::Jump()
+{
+    // ACharacter already implements jumping for us
+    Super::Jump();
+}
+
+void ASCharacter::PrimaryInteract()
+{
+    InteractionComp->PrimaryInteract();
+}
+
+// Called every frame
+void ASCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+// Called to bind functionality to input
+void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &ASCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ASCharacter::MoveRight);
+	
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+
+	PlayerInputComponent->BindAction("PrimaryAttack", EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryAttack);
+    PlayerInputComponent->BindAction("SecondaryAbility", EInputEvent::IE_Pressed, this, &ASCharacter::SecondaryAbility);
+    PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ASCharacter::Jump);
+    PlayerInputComponent->BindAction("PrimaryInteract", EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryInteract);
+}
+
+void ASCharacter::PerformAbility(const FAbilityData& AbilityData)
+{
+    UE_LOG(LogTemp, Log, TEXT("[%s] ASCharacter::PerformAbility()"), *GetNameSafe(this));
+
+    if (ensure(AbilityData.CharacterActionAnim))
+    {
+        PlayAnimMontage(AbilityData.CharacterActionAnim);
+
+        if (AbilityData.ProjectileSpawnDelay > 0.0f)
+        {
+            FTimerDelegate TimerCallback;
+            TimerCallback.BindLambda([this, &AbilityData]()
+            {
+                PerformAbility_TimerElapsed(AbilityData);
+            });
+
+            constexpr bool LoopTimer = false;
+            GetWorldTimerManager().SetTimer(PerformAbility_TimerHandle, TimerCallback, AbilityData.ProjectileSpawnDelay, LoopTimer);
+        }
+        else
+        {
+            PerformAbility_TimerElapsed(AbilityData);
+        }
     }
+}
+
+FVector GetProjectileSpawnPosition(const ACharacter* Instigator, const FAbilityData& AbilityData)
+{
+    check(Instigator != nullptr);
+
+    if (AbilityData.ProjectileSpawnLocationSocketName.IsNone())
+    {
+        return Instigator->GetActorLocation();
+    }
+    
+    return Instigator->GetMesh()->GetSocketLocation(AbilityData.ProjectileSpawnLocationSocketName);
 }
 
 FVector GetProjectileTargetPosition(const AActor* Instigator, const AController* InstigatorController, const float LinecastDistance)
@@ -114,53 +187,19 @@ FVector GetProjectileTargetPosition(const AActor* Instigator, const AController*
     return LinecastEnd;
 }
 
-void ASCharacter::PrimaryAttack_TimerElapsed()
+void ASCharacter::PerformAbility_TimerElapsed(const FAbilityData& AbilityData)
 {
-    const FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");	// right hand
+    const FVector ProjectileSpawnLocation = GetProjectileSpawnPosition(this, AbilityData);
 
-    const FVector ProjectileTarget = GetProjectileTargetPosition(this, GetController(), ProjectileTargetLinecastDistance);
+    const FVector ProjectileTarget = GetProjectileTargetPosition(this, GetController(), AbilityData.ProjectileTargetLinecastDistance);
 
-    const FRotator TargetFacingRotator = UKismetMathLibrary::FindLookAtRotation(HandLocation, ProjectileTarget);
-    FTransform ProjectileSpawnTM = FTransform(TargetFacingRotator, HandLocation);
+    const FRotator TargetFacingRotator = UKismetMathLibrary::FindLookAtRotation(ProjectileSpawnLocation, ProjectileTarget);
+    FTransform ProjectileSpawnTM = FTransform(TargetFacingRotator, ProjectileSpawnLocation);
 
     FActorSpawnParameters ProjectileSpawnParams;
     ProjectileSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     ProjectileSpawnParams.Instigator = this;
 
-    GetWorld()->SpawnActor<AActor>(ProjectileClass, ProjectileSpawnTM, ProjectileSpawnParams);
-}
-
-void ASCharacter::Jump()
-{
-    // ACharacter already implements jumping for us
-    Super::Jump();
-}
-
-void ASCharacter::PrimaryInteract()
-{
-    InteractionComp->PrimaryInteract();
-}
-
-// Called every frame
-void ASCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
-void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	PlayerInputComponent->BindAxis("MoveForward", this, &ASCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ASCharacter::MoveRight);
-	
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-
-	PlayerInputComponent->BindAction("PrimaryAttack", EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryAttack);
-    PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ASCharacter::Jump);
-    PlayerInputComponent->BindAction("PrimaryInteract", EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryInteract);
+    GetWorld()->SpawnActor<AActor>(AbilityData.ProjectileClass, ProjectileSpawnTM, ProjectileSpawnParams);
 }
 

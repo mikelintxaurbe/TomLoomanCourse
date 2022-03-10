@@ -37,6 +37,9 @@ void ASBaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
+    SphereCollision->IgnoreActorWhenMoving(GetInstigator(), bIgnoreInstigatorWhenMoving);
+    SphereCollision->OnComponentBeginOverlap.AddDynamic(this, &ASBaseProjectile::OnSphereCollisionBeginOverlap);
+
     if (Lifetime != InfiniteLifetime)
     {
         if (Lifetime > 0.0f)
@@ -48,9 +51,6 @@ void ASBaseProjectile::BeginPlay()
             OnLifetimeTimerElapsed();
         }
     }
-
-    SphereCollision->IgnoreActorWhenMoving(GetInstigator(), true);
-    SphereCollision->OnComponentBeginOverlap.AddDynamic(this, &ASBaseProjectile::OnSphereCollisionBeginOverlap);
 }
 
 // Called every frame
@@ -60,8 +60,19 @@ void ASBaseProjectile::Tick(float DeltaTime)
 
 }
 
+void ASBaseProjectile::PreInitializeComponents()
+{
+    // Need this for applying any value that's not the default one
+    MovementComp->InitialSpeed = MovementSpeed;
+}
+
 void ASBaseProjectile::OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+    if (bIgnoreInstigatorWhenOverlap && OtherActor == Cast<AActor>(GetInstigator()))
+    {
+        return;
+    }
+
     UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnSphereCollisionBeginOverlap()"), *GetNameSafe(this));
     UE_LOG(LogTemp, Log, TEXT("[%s]     - Hit actor: %s"), *GetNameSafe(this), *GetNameSafe(OtherActor));
     UE_LOG(LogTemp, Log, TEXT("[%s]     - Hit actor 2: %s"), *GetNameSafe(this), *GetNameSafe(SweepResult.GetActor()));

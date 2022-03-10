@@ -29,17 +29,25 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+    virtual void PreInitializeComponents() override;
+
 ///////////////////////////
 
 public:
-    UPROPERTY(EditAnywhere, Category = "BaseProjectile")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
     float MovementSpeed = 1000.0f;
 
-    UPROPERTY(EditAnywhere, Category = "BaseProjectile")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
     float Lifetime = InfiniteLifetime;
 
-    UPROPERTY(EditAnywhere, Category = "BaseProjectile")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
     bool bDestroyOnHit = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
+    bool bIgnoreInstigatorWhenMoving = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
+    bool bIgnoreInstigatorWhenOverlap = true;
 
 protected:
 
