@@ -74,6 +74,8 @@ protected:
 
     virtual bool IsOverlapValid(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+    virtual void OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* OtherComp, const FHitResult& Hit);
+
     virtual void Explode();
 
     virtual void OnLifetimeTimerElapsed();

@@ -3,25 +3,19 @@
 
 #include "SMagicProjectile.h"
 
-// Sets default values
-ASMagicProjectile::ASMagicProjectile()
+#include "ActionRoguelike/Public/SAttributeComponent.h"
+
+void ASMagicProjectile::OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* OtherComp, const FHitResult& Hit)
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    Super::OnOverlapActor(OtherActor, OtherComp, Hit);
 
-}
-
-// Called when the game starts or when spawned
-void ASMagicProjectile::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void ASMagicProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+    if (OtherActor != nullptr)
+    {
+        USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+        if (AttributeComp != nullptr)
+        {
+            AttributeComp->ApplyHealthChange(Damage);
+        }
+    }
 }
 

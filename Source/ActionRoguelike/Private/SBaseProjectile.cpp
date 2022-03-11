@@ -76,6 +76,20 @@ bool ASBaseProjectile::IsOverlapValid(UPrimitiveComponent* OverlappedComponent, 
     return true;
 }
 
+void ASBaseProjectile::OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* OtherComp, const FHitResult& Hit)
+{
+    UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnOverlapActor()"), *GetNameSafe(this));
+    UE_LOG(LogTemp, Log, TEXT("[%s]     - Hit actor: %s"), *GetNameSafe(this), *GetNameSafe(OtherActor));
+
+    constexpr float DebugSphereRadius = 10.0f;
+    constexpr float DebugSphereDuration = 2.0f;
+    UKismetSystemLibrary::DrawDebugSphere(this, GetActorLocation(), DebugSphereRadius, 12.0f, FColor::Red, DebugSphereDuration);
+
+    const FString DebugStringText = FString::Printf(TEXT("Hit actor: %s"), *GetNameSafe(OtherActor));
+    constexpr float DebugTextDuration = 2.0f;
+    UKismetSystemLibrary::DrawDebugString(this, GetActorLocation(), DebugStringText, nullptr, FColor::Red, DebugTextDuration);
+}
+
 void ASBaseProjectile::Explode()
 {
     UWorld* World = GetWorld();
@@ -104,22 +118,14 @@ void ASBaseProjectile::DestroyProjectile()
 
 void ASBaseProjectile::OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+    UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnSphereCollisionBeginOverlap()"), *GetNameSafe(this));
+
     if (IsOverlapValid(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult) == false)
     {
         return;
     }
 
-    UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnSphereCollisionBeginOverlap()"), *GetNameSafe(this));
-    UE_LOG(LogTemp, Log, TEXT("[%s]     - Hit actor: %s"), *GetNameSafe(this), *GetNameSafe(OtherActor));
-    UE_LOG(LogTemp, Log, TEXT("[%s]     - Hit actor 2: %s"), *GetNameSafe(this), *GetNameSafe(SweepResult.GetActor()));
-
-    constexpr float DebugSphereRadius = 10.0f;
-    constexpr float DebugSphereDuration = 2.0f;
-    UKismetSystemLibrary::DrawDebugSphere(this, GetActorLocation(), DebugSphereRadius, 12.0f, FColor::Red, DebugSphereDuration);
-
-    const FString DebugStringText = FString::Printf(TEXT("Hit actor: %s"), *GetNameSafe(SweepResult.GetActor()));
-    constexpr float DebugTextDuration = 2.0f;
-    UKismetSystemLibrary::DrawDebugString(this, GetActorLocation(), DebugStringText, nullptr, FColor::Red, DebugTextDuration);
+    OnOverlapActor(OtherActor, OtherComp, SweepResult);
 
     if (bExplodeOnOverlap)
     {

@@ -11,18 +11,14 @@ UCLASS()
 class ACTIONROGUELIKE_API ASMagicProjectile : public ASBaseProjectile
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ASMagicProjectile();
+
+public:
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MagicProjectile")
+    float Damage = -20.0f;
 
 protected:
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+    virtual void OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* OtherComp, const FHitResult& Hit) override;
 
 };
