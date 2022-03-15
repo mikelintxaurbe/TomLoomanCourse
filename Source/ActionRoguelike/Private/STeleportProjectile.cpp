@@ -15,8 +15,9 @@ void ASTeleportProjectile::Explode()
     // Stop projectile so that we teleport the instigator to the position where we exploded (otherwise we will continue moving and he will be teleported further away)
     MovementComp->StopMovementImmediately();
 
-    EffectComp->SetActive(false);
-    EffectComp->SetVisibility(false);
+    EffectComp->DeactivateSystem();
+
+    SetActorEnableCollision(false);
 }
 
 void ASTeleportProjectile::DestroyProjectile()
@@ -28,7 +29,7 @@ void ASTeleportProjectile::OnInstigatorTeleportDelayTimerElapsed()
 {
     if (APawn* InstigatorPawn = GetInstigator())
     {
-        InstigatorPawn->SetActorLocation(GetActorLocation());
+        InstigatorPawn->TeleportTo(GetActorLocation(), InstigatorPawn->GetActorRotation());
     }
 
     Super::DestroyProjectile();

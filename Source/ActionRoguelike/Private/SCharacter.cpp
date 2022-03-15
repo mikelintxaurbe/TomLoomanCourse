@@ -154,7 +154,7 @@ FVector GetProjectileSpawnPosition(const ACharacter* Instigator, const FAbilityD
     return Instigator->GetMesh()->GetSocketLocation(AbilityData.ProjectileSpawnLocationSocketName);
 }
 
-FVector GetProjectileTargetPosition(const AActor* Instigator, const AController* InstigatorController, const float LinecastDistance)
+FVector GetProjectileTargetPosition(const AActor* Instigator, const AController* InstigatorController, const float LinecastDistance, const float LinecastSphereRadius)
 {
     check(Instigator != nullptr);
     check(InstigatorController != nullptr);
@@ -177,7 +177,19 @@ FVector GetProjectileTargetPosition(const AActor* Instigator, const AController*
     QueryParams.AddIgnoredActor(Instigator);
 
     FHitResult HitResult;
-    const bool LineTraceSuccess = Instigator->GetWorld()->LineTraceSingleByObjectType(HitResult, EyePosition, LinecastEnd, ObjectQueryParams, QueryParams);
+    bool LineTraceSuccess = false;
+
+    if (LinecastSphereRadius > 0.0f)
+    {
+        FCollisionShape Sphere;
+        Sphere.SetSphere(LinecastSphereRadius);
+
+        LineTraceSuccess = Instigator->GetWorld()->SweepSingleByObjectType(HitResult, EyePosition, LinecastEnd, FQuat::Identity, ObjectQueryParams, Sphere, QueryParams);
+    }
+    else
+    {
+        LineTraceSuccess = Instigator->GetWorld()->LineTraceSingleByObjectType(HitResult, EyePosition, LinecastEnd, ObjectQueryParams, QueryParams);
+    }
 
     const FLinearColor DebugDrawingColor = LineTraceSuccess ? FLinearColor::Green : FLinearColor::Red;
     constexpr float DebugDrawingDuration = 2.0f;
@@ -188,7 +200,7 @@ FVector GetProjectileTargetPosition(const AActor* Instigator, const AController*
     if (LineTraceSuccess)
     {
         constexpr float DebugSphereRadius = 15.0f;
-        UKismetSystemLibrary::DrawDebugSphere(Instigator, HitResult.ImpactPoint, DebugSphereRadius, 12, DebugDrawingColor, DebugDrawingDuration);
+        UKismetSystemLibrary::DrawDebugSphere(Instigator, HitResult.ImpactPoint, LinecastSphereRadius > 0.0f ? LinecastSphereRadius : DebugSphereRadius, 12, DebugDrawingColor, DebugDrawingDuration);
 
         return HitResult.ImpactPoint;
     }
@@ -200,7 +212,7 @@ void ASCharacter::PerformAbility_TimerElapsed(const FAbilityData& AbilityData)
 {
     const FVector ProjectileSpawnLocation = GetProjectileSpawnPosition(this, AbilityData);
 
-    const FVector ProjectileTarget = GetProjectileTargetPosition(this, GetController(), AbilityData.ProjectileTargetLinecastDistance);
+    const FVector ProjectileTarget = GetProjectileTargetPosition(this, GetController(), AbilityData.ProjectileTargetLinecastDistance, AbilityData.ProjectileTargetLinecastSphereRadius);
 
     const FRotator TargetFacingRotator = UKismetMathLibrary::FindLookAtRotation(ProjectileSpawnLocation, ProjectileTarget);
     FTransform ProjectileSpawnTM = FTransform(TargetFacingRotator, ProjectileSpawnLocation);

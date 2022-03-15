@@ -30,6 +30,9 @@ struct FAbilityData
 
     UPROPERTY(EditAnywhere, Meta=(ClampMin = "0"))
     float ProjectileTargetLinecastDistance = 100000.0f;
+
+    UPROPERTY(EditAnywhere, Meta = (ClampMin = "0"))
+    float ProjectileTargetLinecastSphereRadius = 20.0f;
 };
 
 UCLASS()
