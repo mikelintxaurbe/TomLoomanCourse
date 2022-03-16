@@ -28,6 +28,9 @@ struct FAbilityData
     UPROPERTY(EditAnywhere, Meta=(ClampMin = "0"))
     float ProjectileSpawnDelay = 0.0f;
 
+    UPROPERTY(EditAnywhere)
+    UParticleSystem* ProjectileSpawnVFX = nullptr;
+
     UPROPERTY(EditAnywhere, Meta=(ClampMin = "0"))
     float ProjectileTargetLinecastDistance = 100000.0f;
 
@@ -55,7 +58,10 @@ protected:
     float HitFlashDurationSeconds = 0.5f;
 
     UPROPERTY(EditAnywhere, Category = "HitFlash effect")
-    FLinearColor HitFlashColor = FLinearColor::Red;
+    FLinearColor HitFlashDamagedColor = FLinearColor::Red;
+
+    UPROPERTY(EditAnywhere, Category = "HitFlash effect")
+    FLinearColor HitFlashHealedColor = FLinearColor::Green;
 
 public:
 	// Sets default values for this character's properties

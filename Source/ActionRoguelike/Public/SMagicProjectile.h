@@ -17,8 +17,16 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MagicProjectile")
     float Damage = -20.0f;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MagicProjectile")
+    TSubclassOf<UCameraShakeBase> CameraShake;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MagicProjectile")
+    float CameraShakeRadius = 600.0f;
+
 protected:
 
     virtual void OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* OtherComp, const FHitResult& Hit) override;
+
+    void Explode() override;
 
 };

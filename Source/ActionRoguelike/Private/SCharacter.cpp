@@ -6,6 +6,7 @@
 #include <Camera/CameraComponent.h>
 #include <GameFramework/CharacterMovementComponent.h>
 #include <GameFramework/SpringArmComponent.h>
+#include <Kismet/GameplayStatics.h>
 #include <Kismet/KismetMathLibrary.h>
 #include <Kismet/KismetSystemLibrary.h>
 
@@ -96,7 +97,15 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
     USkeletalMeshComponent* SkeletalMesh = GetMesh();
     SkeletalMesh->SetScalarParameterValueOnMaterials("TimeAtHit", GetWorld()->TimeSeconds);
     SkeletalMesh->SetScalarParameterValueOnMaterials("FlashDurationSeconds", HitFlashDurationSeconds);
-    SkeletalMesh->SetVectorParameterValueOnMaterials("FlashColor", FVector{ HitFlashColor });
+
+    if (Delta >= 0.0f)
+    {
+        SkeletalMesh->SetVectorParameterValueOnMaterials("FlashColor", FVector{ HitFlashHealedColor });
+    }
+    else
+    {
+        SkeletalMesh->SetVectorParameterValueOnMaterials("FlashColor", FVector{ HitFlashDamagedColor });
+    }
 
     if (NewHealth <= 0.0f && Delta < 0.0f)
     {
@@ -243,5 +252,10 @@ void ASCharacter::PerformAbility_TimerElapsed(const FAbilityData& AbilityData)
     ProjectileSpawnParams.Instigator = this;
 
     GetWorld()->SpawnActor<AActor>(AbilityData.ProjectileClass, ProjectileSpawnTM, ProjectileSpawnParams);
+
+    if (AbilityData.ProjectileSpawnVFX != nullptr)
+    {
+        UGameplayStatics::SpawnEmitterAttached(AbilityData.ProjectileSpawnVFX, GetMesh(), AbilityData.ProjectileSpawnLocationSocketName);
+    }
 }
 

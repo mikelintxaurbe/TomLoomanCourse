@@ -3,6 +3,8 @@
 
 #include "SMagicProjectile.h"
 
+#include <Kismet/GameplayStatics.h>
+
 #include "ActionRoguelike/Public/SAttributeComponent.h"
 
 void ASMagicProjectile::OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* OtherComp, const FHitResult& Hit)
@@ -17,5 +19,13 @@ void ASMagicProjectile::OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* 
             AttributeComp->ApplyHealthChange(Damage);
         }
     }
+}
+
+void ASMagicProjectile::Explode()
+{
+    Super::Explode();
+
+    const float CameraShakeIgnoreCamerasRadius = 0.0f;
+    UGameplayStatics::PlayWorldCameraShake(this, CameraShake, GetActorLocation(), CameraShakeIgnoreCamerasRadius, CameraShakeRadius);
 }
 
