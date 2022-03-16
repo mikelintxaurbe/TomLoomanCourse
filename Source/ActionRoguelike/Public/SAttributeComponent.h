@@ -21,10 +21,15 @@ protected:
 
     // Other possible attributes: HealthMax, Stamina, Strength
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetHealth, Category = "Attributes")
     float Health;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+    float HealthMax;
+
 public:	
+
+    virtual void BeginPlay() override;
 
     UFUNCTION(BlueprintCallable)
     bool IsAlive() const;
@@ -34,5 +39,10 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Attributes")
     bool ApplyHealthChange(float Delta);
+
+private:
+
+    UFUNCTION(BlueprintSetter)
+    void SetHealth(float Value);
 
 };

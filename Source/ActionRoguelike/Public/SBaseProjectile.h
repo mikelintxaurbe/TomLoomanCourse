@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "SBaseProjectile.generated.h"
 
+class UAudioComponent;
 class UParticleSystemComponent;
 class UProjectileMovementComponent;
 class USphereComponent;
@@ -65,6 +66,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
     UParticleSystemComponent* EffectComp;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
+    UAudioComponent* AudioComp;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
     UParticleSystem* ImpactVFX;

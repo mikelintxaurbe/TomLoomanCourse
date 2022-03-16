@@ -3,12 +3,30 @@
 
 #include "SAttributeComponent.h"
 
+namespace
+{
+    constexpr float HealthMin = 0.0f;
+}
+
 // Sets default values for this component's properties
 USAttributeComponent::USAttributeComponent()
 {
-    Health = 100.0f;
+    HealthMax = 100.0f;
+    Health = HealthMax;
 }
 
+void USAttributeComponent::BeginPlay()
+{
+    Super::BeginPlay();
+
+    // Clamp HealthMax to a valid value and update Health again just in case
+    HealthMax = FMath::Clamp(HealthMax, HealthMin, TNumericLimits<float>::Max());
+    
+    if (HealthMax < Health)
+    {
+        Health = HealthMax;
+    }
+}
 
 bool USAttributeComponent::IsAlive() const
 {
@@ -17,13 +35,26 @@ bool USAttributeComponent::IsAlive() const
 
 bool USAttributeComponent::ApplyHealthChange(float Delta)
 {
-    UE_LOG(LogTemp, Log, TEXT("[%s] USAttributeComponent::ApplyHealthChange(%f)"), *GetNameSafe(this), Delta);
-    UE_LOG(LogTemp, Log, TEXT("[%s]     - Health = %f -> %f"), *GetNameSafe(this), Health, Health + Delta);
+    float PrevHealth = Health;
 
-    Health += Delta;
+    Health = FMath::Clamp(Health + Delta, HealthMin, HealthMax);
+    Delta = Health - PrevHealth;
 
-    OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
+    const bool Changed = Health != PrevHealth;
 
-    return true;
+    if (Changed)
+    {
+        UE_LOG(LogTemp, Log, TEXT("[%s] USAttributeComponent::ApplyHealthChange(%f)"), *GetNameSafe(this), Delta);
+        UE_LOG(LogTemp, Log, TEXT("[%s]     - Health = %f -> %f"), *GetNameSafe(this), Health, Health + Delta);
+
+        OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
+    }
+
+    return Changed;
+}
+
+void USAttributeComponent::SetHealth(float Value)
+{
+    ApplyHealthChange(Value - Health);
 }
 

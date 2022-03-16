@@ -3,6 +3,7 @@
 
 #include "SBaseProjectile.h"
 
+#include <Components/AudioComponent.h>
 #include <Components/SphereComponent.h>
 #include <GameFramework/ProjectileMovementComponent.h>
 #include <Kismet/GameplayStatics.h>
@@ -30,6 +31,10 @@ ASBaseProjectile::ASBaseProjectile()
     EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
     EffectComp->SetAutoActivate(true);
     EffectComp->SetupAttachment(RootComponent);
+
+    AudioComp = CreateDefaultSubobject<UAudioComponent>("AudioComp");
+    AudioComp->SetAutoActivate(true);
+    AudioComp->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -96,7 +101,7 @@ void ASBaseProjectile::Explode()
 
     const FTransform ActorTM = GetActorTransform();
     UGameplayStatics::SpawnEmitterAtLocation(World, ImpactVFX, ActorTM);
-    UGameplayStatics::SpawnSoundAtLocation(World, ImpactSFX, ActorTM.GetLocation());
+    UGameplayStatics::PlaySoundAtLocation(World, ImpactSFX, ActorTM.GetLocation()); // better than SpawnSoundAtLocation() because this doesn't create an UAudioComponent in the world
 }
 
 void ASBaseProjectile::OnLifetimeTimerElapsed()

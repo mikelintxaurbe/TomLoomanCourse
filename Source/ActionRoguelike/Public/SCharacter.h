@@ -51,6 +51,12 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Abilities")
     FAbilityData SecondaryAbilityData;
 
+    UPROPERTY(EditAnywhere, Category = "HitFlash effect")
+    float HitFlashDurationSeconds = 0.5f;
+
+    UPROPERTY(EditAnywhere, Category = "HitFlash effect")
+    FLinearColor HitFlashColor = FLinearColor::Red;
+
 public:
 	// Sets default values for this character's properties
 	ASCharacter();
