@@ -10,6 +10,11 @@ USAttributeComponent::USAttributeComponent()
 }
 
 
+bool USAttributeComponent::IsAlive() const
+{
+    return Health > 0.0f;
+}
+
 bool USAttributeComponent::ApplyHealthChange(float Delta)
 {
     UE_LOG(LogTemp, Log, TEXT("[%s] USAttributeComponent::ApplyHealthChange(%f)"), *GetNameSafe(this), Delta);
