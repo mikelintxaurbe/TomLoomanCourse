@@ -11,10 +11,11 @@ bool ASHealthPotion::CanInteractWith(const APawn* InstigatorPawn) const
 {
     UE_LOG(LogTemp, Log, TEXT("[%s] ASHealthPotion::CanInteractWith()"), *GetNameSafe(this));
 
-    if (CurrentActiveState != EActiveState::Active)
+    // Not needed anymore, actor collisions are disabled while inactive
+    /*if (CurrentActiveState != EActiveState::Active)
     {
         return false;
-    }
+    }*/
 
     if (USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass())))
     {
@@ -55,7 +56,11 @@ void ASHealthPotion::SetActiveState(const EActiveState NewActiveState)
         CurrentActiveState = NewActiveState;
 
         const bool ShowMesh = NewActiveState == EActiveState::Active;
-        StaticMeshComp->SetVisibility(ShowMesh, true);
+        constexpr bool PropagateToChildren = true;
+        StaticMeshComp->SetVisibility(ShowMesh, PropagateToChildren);
+
+        const bool EnableActorCollisions = NewActiveState == EActiveState::Active;
+        SetActorEnableCollision(EnableActorCollisions);
     }
 }
 
