@@ -56,6 +56,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
     bool bIgnoreInstigatorWhenOverlap = true;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseProjectile")
+    bool bIgnoreProjectilesOfSameInstigator = true;
+
 protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseProjectile")

@@ -73,9 +73,21 @@ void ASBaseProjectile::PreInitializeComponents()
 
 bool ASBaseProjectile::IsOverlapValid(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    if (bIgnoreInstigatorWhenOverlap)
+    const AActor* MyInstigator = Cast<AActor>(GetInstigator());
+
+    if (bIgnoreInstigatorWhenOverlap && OtherActor == MyInstigator)
     {
-        return OtherActor != Cast<AActor>(GetInstigator());
+        return false;
+    }
+
+    if (bIgnoreProjectilesOfSameInstigator && OtherActor->IsA<ASBaseProjectile>())
+    {
+        const AActor* OtherActorInstigator = Cast<AActor>(OtherActor->GetInstigator());
+
+        if (OtherActorInstigator == MyInstigator)
+        {
+            return false;
+        }
     }
 
     return true;
