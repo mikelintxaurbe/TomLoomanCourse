@@ -10,14 +10,18 @@ void ASAIController::BeginPlay()
 {
     Super::BeginPlay();
 
-    RunBehaviorTree(BehaviorTree);
+    if (ensureMsgf(BehaviorTree, TEXT("Behavior Tree is nullptr! Please assign BehaviorTree in your AI Controller.")))
+    {
+        RunBehaviorTree(BehaviorTree);
+    }
 
-    constexpr int32 DefaultPlayerIndex = 0;
+    // Old way of setting TargetActor, now done from SAICharacter with UPawnSensingComponent
+    /*constexpr int32 DefaultPlayerIndex = 0;
     APawn* MyPawn = UGameplayStatics::GetPlayerPawn(this, DefaultPlayerIndex);
     if (MyPawn != nullptr)
     {
         UBlackboardComponent* BlackBoardComponent = GetBlackboardComponent();
         BlackBoardComponent->SetValueAsVector("MoveToLocation", MyPawn->GetActorLocation());
         BlackBoardComponent->SetValueAsObject("TargetActor", MyPawn);
-    }
+    }*/
 }
