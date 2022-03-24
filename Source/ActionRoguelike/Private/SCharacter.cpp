@@ -255,7 +255,7 @@ void ASCharacter::PerformAbility_TimerElapsed(const FAbilityData& AbilityData)
 
     if (AbilityData.ProjectileSpawnVFX != nullptr)
     {
-        UGameplayStatics::SpawnEmitterAttached(AbilityData.ProjectileSpawnVFX, GetMesh(), AbilityData.ProjectileSpawnLocationSocketName);
+        UGameplayStatics::SpawnEmitterAttached(AbilityData.ProjectileSpawnVFX, GetMesh(), AbilityData.ProjectileSpawnLocationSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
     }
 }
 
