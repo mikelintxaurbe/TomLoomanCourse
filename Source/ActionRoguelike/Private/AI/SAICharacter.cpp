@@ -5,6 +5,7 @@
 
 #include <AIController.h>
 #include <BehaviorTree/BlackboardComponent.h>
+#include <BrainComponent.h>
 #include <DrawDebugHelpers.h>
 #include <Perception/PawnSensingComponent.h>
 
@@ -18,6 +19,10 @@ ASAICharacter::ASAICharacter()
     AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+    HitFlashTimeParamName = "TimeAtHit";
+    HitFlashDurationParamName = "FlashDurationSeconds";
+    HitFlashColorParamName = "FlashColor";
 }
 
 void ASAICharacter::PostInitializeComponents()
@@ -31,35 +36,30 @@ void ASAICharacter::PostInitializeComponents()
 
 void ASAICharacter::OnPawnSeen(APawn* Pawn)
 {
-    AAIController* AIC = Cast<AAIController>(GetController());
-    if (AIC != nullptr)
-    {
-        UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
-        BBComp->SetValueAsObject("TargetActor", Pawn);
+    SetTargetActor(Pawn);
 
-        constexpr float DebugTextDuration = 4.0f;
-        DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, DebugTextDuration);
-    }
+    constexpr float DebugTextDuration = 4.0f;
+    DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, DebugTextDuration);
 }
 
 void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
-    if (Delta == 0.0f)
-    {
-        return;
-    }
-
     USkeletalMeshComponent* SkeletalMesh = GetMesh();
-    SkeletalMesh->SetScalarParameterValueOnMaterials("TimeAtHit", GetWorld()->TimeSeconds);
-    SkeletalMesh->SetScalarParameterValueOnMaterials("FlashDurationSeconds", HitFlashDurationSeconds);
+    SkeletalMesh->SetScalarParameterValueOnMaterials(HitFlashTimeParamName, GetWorld()->TimeSeconds);
+    SkeletalMesh->SetScalarParameterValueOnMaterials(HitFlashDurationParamName, HitFlashDurationSeconds);
 
-    if (Delta > 0.0f)
+    if (Delta >= 0.0f)
     {
-        SkeletalMesh->SetVectorParameterValueOnMaterials("FlashColor", FVector{ HitFlashHealedColor });
+        SkeletalMesh->SetVectorParameterValueOnMaterials(HitFlashColorParamName, FVector{ HitFlashHealedColor });
     }
     else
     {
-        SkeletalMesh->SetVectorParameterValueOnMaterials("FlashColor", FVector{ HitFlashDamagedColor });
+        SkeletalMesh->SetVectorParameterValueOnMaterials(HitFlashColorParamName, FVector{ HitFlashDamagedColor });
+
+        if (InstigatorActor != this)
+        {
+            SetTargetActor(InstigatorActor);
+        }
     }
 
     if (NewHealth <= 0.0f && Delta < 0.0f)
@@ -67,9 +67,30 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
         SetActorEnableCollision(false);
 
         AAIController* AIC = Cast<AAIController>(GetController());
-        AIC->UnPossess();
+        if (AIC != nullptr)
+        {
+            // stop BT
+            //AIC->UnPossess();
+            AIC->GetBrainComponent()->StopLogic("Killed");
 
-        // Death animation is managed in the Animation Blueprint
+            // ragdoll
+            //GetMesh()->SetAllBodiesSimulatePhysics(true);
+            //GetMesh()->SetCollisionProfileName("Ragdoll");
+            // --> Death animation is managed in the Animation Blueprint <--
+
+            // set lifespan
+            constexpr float TimeToDie = 10.0f;
+            SetLifeSpan(TimeToDie);
+        }
+    }
+}
+
+void ASAICharacter::SetTargetActor(AActor* NewTarget)
+{
+    AAIController* AIC = Cast<AAIController>(GetController());
+    if (AIC != nullptr)
+    {
+        AIC->GetBlackboardComponent()->SetValueAsObject("TargetActor", NewTarget);
     }
 }
 

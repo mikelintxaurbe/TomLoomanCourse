@@ -33,6 +33,10 @@ ASCharacter::ASCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
+
+    HitFlashTimeParamName = "TimeAtHit";
+    HitFlashDurationParamName = "FlashDurationSeconds";
+    HitFlashColorParamName = "FlashColor";
 }
 
 // Called when the game starts or when spawned
@@ -95,16 +99,16 @@ void ASCharacter::PrimaryInteract()
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
     USkeletalMeshComponent* SkeletalMesh = GetMesh();
-    SkeletalMesh->SetScalarParameterValueOnMaterials("TimeAtHit", GetWorld()->TimeSeconds);
-    SkeletalMesh->SetScalarParameterValueOnMaterials("FlashDurationSeconds", HitFlashDurationSeconds);
+    SkeletalMesh->SetScalarParameterValueOnMaterials(HitFlashTimeParamName, GetWorld()->TimeSeconds);
+    SkeletalMesh->SetScalarParameterValueOnMaterials(HitFlashDurationParamName, HitFlashDurationSeconds);
 
     if (Delta >= 0.0f)
     {
-        SkeletalMesh->SetVectorParameterValueOnMaterials("FlashColor", FVector{ HitFlashHealedColor });
+        SkeletalMesh->SetVectorParameterValueOnMaterials(HitFlashColorParamName, FVector{ HitFlashHealedColor });
     }
     else
     {
-        SkeletalMesh->SetVectorParameterValueOnMaterials("FlashColor", FVector{ HitFlashDamagedColor });
+        SkeletalMesh->SetVectorParameterValueOnMaterials(HitFlashColorParamName, FVector{ HitFlashDamagedColor });
     }
 
     if (NewHealth <= 0.0f && Delta < 0.0f)

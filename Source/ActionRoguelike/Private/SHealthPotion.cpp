@@ -28,7 +28,7 @@ void ASHealthPotion::DoInteraction(APawn* InstigatorPawn)
     USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
     if (ensure(AttributeComponent != nullptr))
     {
-        AttributeComponent->ApplyHealthChange(HealthRestored);
+        AttributeComponent->ApplyHealthChange(this, HealthRestored);
     }
 }
 

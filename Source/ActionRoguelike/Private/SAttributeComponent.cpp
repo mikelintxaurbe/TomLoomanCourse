@@ -43,7 +43,7 @@ float USAttributeComponent::GetHealthMax() const
     return HealthMax;
 }
 
-bool USAttributeComponent::ApplyHealthChange(float Delta)
+bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
     float PrevHealth = Health;
 
@@ -57,7 +57,7 @@ bool USAttributeComponent::ApplyHealthChange(float Delta)
         UE_LOG(LogTemp, Log, TEXT("[%s] USAttributeComponent::ApplyHealthChange(%f)"), *GetNameSafe(this), Delta);
         UE_LOG(LogTemp, Log, TEXT("[%s]     - Health = %f -> %f"), *GetNameSafe(this), Health, Health + Delta);
 
-        OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
+        OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
     }
 
     return Changed;
@@ -65,6 +65,28 @@ bool USAttributeComponent::ApplyHealthChange(float Delta)
 
 void USAttributeComponent::SetHealth(float Value)
 {
-    ApplyHealthChange(Value - Health);
+    // No instigator because this comes directly from the editor
+    ApplyHealthChange(nullptr, Value - Health);
+}
+
+USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
+{
+    if (FromActor != nullptr)
+    {
+        return Cast<USAttributeComponent>(FromActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+    }
+
+    return nullptr;
+}
+
+bool USAttributeComponent::IsActorAlive(AActor* Actor)
+{
+    USAttributeComponent* AttributeComp = GetAttributes(Actor);
+    if (AttributeComp != nullptr)
+    {
+        return AttributeComp->IsAlive();
+    }
+
+    return false;
 }
 

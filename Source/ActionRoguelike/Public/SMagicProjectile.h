@@ -14,8 +14,8 @@ class ACTIONROGUELIKE_API ASMagicProjectile : public ASBaseProjectile
 
 public:
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MagicProjectile")
-    float Damage = -20.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MagicProjectile", Meta = (ClampMin = "0"))
+    float Damage = 20.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MagicProjectile")
     TSubclassOf<UCameraShakeBase> CameraShake;

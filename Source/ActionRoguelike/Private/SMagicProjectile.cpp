@@ -16,7 +16,8 @@ void ASMagicProjectile::OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* 
         USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
         if (AttributeComp != nullptr)
         {
-            AttributeComp->ApplyHealthChange(Damage);
+            ensure(Damage > 0.0f);
+            AttributeComp->ApplyHealthChange(GetInstigator(), -1.0f * Damage);
         }
     }
 }

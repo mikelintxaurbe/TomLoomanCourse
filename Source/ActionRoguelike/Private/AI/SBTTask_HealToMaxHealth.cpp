@@ -20,7 +20,7 @@ EBTNodeResult::Type USBTTask_HealToMaxHealth::ExecuteTask(UBehaviorTreeComponent
             USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(AiPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
             if (AttributeComponent != nullptr)
             {
-                AttributeComponent->ApplyHealthChange(AttributeComponent->GetHealthMax());
+                AttributeComponent->ApplyHealthChange(AiPawn, AttributeComponent->GetHealthMax());
                 return EBTNodeResult::Succeeded;
             }
         }

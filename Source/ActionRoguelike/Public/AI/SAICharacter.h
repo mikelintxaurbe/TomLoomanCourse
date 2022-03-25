@@ -16,13 +16,22 @@ class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
 
 public:
 
-    UPROPERTY(EditAnywhere, Category = "HitFlash effect")
+    UPROPERTY(EditAnywhere, Category = "Effects | HitFlash")
+    FName HitFlashTimeParamName;
+
+    UPROPERTY(EditAnywhere, Category = "Effects | HitFlash")
+    FName HitFlashDurationParamName;
+
+    UPROPERTY(EditAnywhere, Category = "Effects | HitFlash")
     float HitFlashDurationSeconds = 0.5f;
 
-    UPROPERTY(EditAnywhere, Category = "HitFlash effect")
+    UPROPERTY(EditAnywhere, Category = "Effects | HitFlash")
+    FName HitFlashColorParamName;
+
+    UPROPERTY(EditAnywhere, Category = "Effects | HitFlash")
     FLinearColor HitFlashDamagedColor = FLinearColor::Red;
 
-    UPROPERTY(EditAnywhere, Category = "HitFlash effect")
+    UPROPERTY(EditAnywhere, Category = "Effects | HitFlash")
     FLinearColor HitFlashHealedColor = FLinearColor::Green;
 
 	// Sets default values for this character's properties
@@ -43,5 +52,7 @@ protected:
 
     UFUNCTION()
     void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+    void SetTargetActor(AActor* NewTarget);
 
 };
