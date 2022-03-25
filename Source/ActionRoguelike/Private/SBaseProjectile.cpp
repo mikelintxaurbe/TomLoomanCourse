@@ -95,8 +95,8 @@ bool ASBaseProjectile::IsOverlapValid(UPrimitiveComponent* OverlappedComponent, 
 
 void ASBaseProjectile::OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* OtherComp, const FHitResult& Hit)
 {
-    UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnOverlapActor()"), *GetNameSafe(this));
-    UE_LOG(LogTemp, Log, TEXT("[%s]     - Hit actor: %s"), *GetNameSafe(this), *GetNameSafe(OtherActor));
+    //UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnOverlapActor()"), *GetNameSafe(this));
+    //UE_LOG(LogTemp, Log, TEXT("[%s]     - Hit actor: %s"), *GetNameSafe(this), *GetNameSafe(OtherActor));
 
     constexpr float DebugSphereRadius = 10.0f;
     constexpr float DebugSphereDuration = 2.0f;
@@ -118,7 +118,7 @@ void ASBaseProjectile::Explode()
 
 void ASBaseProjectile::OnLifetimeTimerElapsed()
 {
-    UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnLifetimeTimerElapsed()"), *GetNameSafe(this));
+    //UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnLifetimeTimerElapsed()"), *GetNameSafe(this));
 
     if (bExplodeOnLifetimeEnd)
     {
@@ -135,7 +135,7 @@ void ASBaseProjectile::DestroyProjectile()
 
 void ASBaseProjectile::OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnSphereCollisionBeginOverlap()"), *GetNameSafe(this));
+    //UE_LOG(LogTemp, Log, TEXT("[%s] ASBaseProjectile::OnSphereCollisionBeginOverlap()"), *GetNameSafe(this));
 
     if (IsOverlapValid(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult) == false)
     {

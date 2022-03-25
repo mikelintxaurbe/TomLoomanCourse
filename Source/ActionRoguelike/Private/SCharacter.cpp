@@ -148,7 +148,7 @@ void ASCharacter::PostInitializeComponents()
 
 void ASCharacter::PerformAbility(const FAbilityData& AbilityData)
 {
-    UE_LOG(LogTemp, Log, TEXT("[%s] ASCharacter::PerformAbility()"), *GetNameSafe(this));
+    //UE_LOG(LogTemp, Log, TEXT("[%s] ASCharacter::PerformAbility()"), *GetNameSafe(this));
 
     if (ensure(AbilityData.CharacterActionAnim))
     {

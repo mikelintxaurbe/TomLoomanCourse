@@ -9,7 +9,7 @@
 
 bool ASHealthPotion::CanInteractWith(const APawn* InstigatorPawn) const
 {
-    UE_LOG(LogTemp, Log, TEXT("[%s] ASHealthPotion::CanInteractWith()"), *GetNameSafe(this));
+    //UE_LOG(LogTemp, Log, TEXT("[%s] ASHealthPotion::CanInteractWith()"), *GetNameSafe(this));
 
     if (USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass())))
     {
@@ -23,7 +23,7 @@ void ASHealthPotion::DoInteraction(APawn* InstigatorPawn)
 {
     Super::DoInteraction(InstigatorPawn);
 
-    UE_LOG(LogTemp, Log, TEXT("[%s] ASHealthPotion::DoInteraction()"), *GetNameSafe(this));
+    //UE_LOG(LogTemp, Log, TEXT("[%s] ASHealthPotion::DoInteraction()"), *GetNameSafe(this));
 
     USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
     if (ensure(AttributeComponent != nullptr))
