@@ -10,6 +10,7 @@
 #include <Perception/PawnSensingComponent.h>
 
 #include "ActionRoguelike/Public/SAttributeComponent.h"
+#include "ActionRoguelike/Public/SWorldUserWidget.h"
 
 // Sets default values
 ASAICharacter::ASAICharacter()
@@ -59,6 +60,20 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
         if (InstigatorActor != this)
         {
             SetTargetActor(InstigatorActor);
+        }
+
+        if (ActiveHealthBar == nullptr)
+        {
+            ActiveHealthBar = CreateWidget<USWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+            if (ActiveHealthBar != nullptr)
+            {
+                constexpr float OffsetHeight = 70.0f;
+
+                ActiveHealthBar->AttachedActor = this;
+                ActiveHealthBar->WorldOffset = FVector(0.0f, 0.0f, OffsetHeight);
+
+                ActiveHealthBar->AddToViewport();
+            }
         }
     }
 
