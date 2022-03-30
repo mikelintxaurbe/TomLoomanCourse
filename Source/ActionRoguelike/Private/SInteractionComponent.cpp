@@ -7,6 +7,8 @@
 
 #include "ActionRoguelike/Public/SGameplayInterface.h"
 
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
+
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
@@ -59,6 +61,8 @@ void USInteractionComponent::PrimaryInteract()
     TArray<FHitResult> HitResults;
     const bool Result = GetWorld()->SweepMultiByObjectType(HitResults, RaycastStart, RaycastEnd, FQuat::Identity, ObjectQueryParams, Sphere);
 
+    const bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
+
     FLinearColor DebugLineColor = Result ? FLinearColor::Yellow : FLinearColor::Red;
     constexpr float DebugDrawingDuration = 2.0f;
 
@@ -75,9 +79,12 @@ void USInteractionComponent::PrimaryInteract()
             }
         }
 
-        const FLinearColor DebugSphereColor = GameplayInterfaceFound ? FLinearColor::Green : FLinearColor::Yellow;
-        
-        UKismetSystemLibrary::DrawDebugSphere(this, Hit.ImpactPoint, RaycastSphereRadius, 12, DebugSphereColor, DebugDrawingDuration);
+        if (bDebugDraw)
+        {
+            const FLinearColor DebugSphereColor = GameplayInterfaceFound ? FLinearColor::Green : FLinearColor::Yellow;
+
+            UKismetSystemLibrary::DrawDebugSphere(this, Hit.ImpactPoint, RaycastSphereRadius, 12, DebugSphereColor, DebugDrawingDuration);
+        }
 
         if (GameplayInterfaceFound)
         {
@@ -86,7 +93,10 @@ void USInteractionComponent::PrimaryInteract()
         }
     }
 
-    constexpr float DebugLineThickness = 2.0f;
-    UKismetSystemLibrary::DrawDebugLine(this, RaycastStart, RaycastEnd, DebugLineColor, DebugDrawingDuration, DebugLineThickness);
+    if (bDebugDraw)
+    {
+        constexpr float DebugLineThickness = 2.0f;
+        UKismetSystemLibrary::DrawDebugLine(this, RaycastStart, RaycastEnd, DebugLineColor, DebugDrawingDuration, DebugLineThickness);
+    }
 }
 

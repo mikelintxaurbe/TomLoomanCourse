@@ -9,6 +9,9 @@
 
 #include "ActionRoguelike/Public/AI/SAICharacter.h"
 #include "ActionRoguelike/Public/SAttributeComponent.h"
+#include "ActionRoguelike/Public/SCharacter.h"
+
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
 
 ASGameModeBase::ASGameModeBase()
 {
@@ -39,6 +42,12 @@ void ASGameModeBase::KillAll()
 
 void ASGameModeBase::SpawnBotTimerElapsed()
 {
+    if (!CVarSpawnBots.GetValueOnGameThread())
+    {
+        UE_LOG(LogTemp, Log, TEXT("[ASGameModeBase::OnQueryCompleted] Bot spawning disabled via cvar 'CVarSpawnBots'."));
+        return;
+    }
+
     int32 NrOfAliveBots = 0;
     for (TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
     {
@@ -95,5 +104,33 @@ void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryIn
         constexpr float DebugSphereLifetime = 60.0f;
         DrawDebugSphere(GetWorld(), Locations[0], DebugSphereRadius, 20.0f, FColor::Blue, false, DebugSphereLifetime);
     }
+}
+
+void ASGameModeBase::RespawnPlayerElapsed(AController* Controller)
+{
+    if (ensure(Controller != nullptr))
+    {
+        Controller->UnPossess();
+
+        RestartPlayer(Controller);
+    }
+}
+
+void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
+{
+    ASCharacter* Player = Cast<ASCharacter>(VictimActor);
+    if (Player != nullptr)
+    {
+        FTimerHandle TimerHandle_RespawnDelay;
+
+        FTimerDelegate Delegate;
+        Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
+
+        constexpr float RespawnDelay = 2.0f;
+        constexpr bool bDoesLoop = false;
+        GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, bDoesLoop);
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("[ASGameModeBase::OnActorKilled] Victim: %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
 }
 

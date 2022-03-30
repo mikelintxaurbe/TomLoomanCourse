@@ -6,7 +6,9 @@
 #include <AIController.h>
 #include <BehaviorTree/BlackboardComponent.h>
 #include <BrainComponent.h>
+#include <Components/CapsuleComponent.h>
 #include <DrawDebugHelpers.h>
+#include <GameFramework/CharacterMovementComponent.h>
 #include <Perception/PawnSensingComponent.h>
 
 #include "ActionRoguelike/Public/SAttributeComponent.h"
@@ -20,6 +22,10 @@ ASAICharacter::ASAICharacter()
     AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
+    GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+    GetMesh()->SetGenerateOverlapEvents(true);
 
     HitFlashTimeParamName = "TimeAtHit";
     HitFlashDurationParamName = "FlashDurationSeconds";
@@ -92,6 +98,9 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
             //GetMesh()->SetAllBodiesSimulatePhysics(true);
             //GetMesh()->SetCollisionProfileName("Ragdoll");
             // --> Death animation is managed in the Animation Blueprint <--
+
+            GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            GetCharacterMovement()->DisableMovement();
 
             // set lifespan
             constexpr float TimeToDie = 10.0f;

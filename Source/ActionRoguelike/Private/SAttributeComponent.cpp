@@ -3,10 +3,14 @@
 
 #include "SAttributeComponent.h"
 
+#include "ActionRoguelike/Public/SGameModeBase.h"
+
 namespace
 {
     constexpr float HealthMin = 0.0f;
 }
+
+static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.0f, TEXT("Global Damage Modifier for Attribute Component."), ECVF_Cheat);
 
 // Sets default values for this component's properties
 USAttributeComponent::USAttributeComponent()
@@ -50,9 +54,16 @@ float USAttributeComponent::GetHealthMax() const
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
-    if (!GetOwner()->CanBeDamaged())
+    if (!GetOwner()->CanBeDamaged() && Delta < 0.0f)
     {
         return false;
+    }
+
+    if (Delta < 0.0f)
+    {
+        const float DamageMultiplier = CVarDamageMultiplier.GetValueOnGameThread();
+
+        Delta *= DamageMultiplier;
     }
 
     float PrevHealth = Health;
@@ -68,6 +79,16 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
         UE_LOG(LogTemp, Log, TEXT("[%s]     - Health = %f -> %f"), *GetNameSafe(this), Health, Health + Delta);
 
         OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
+
+        // Died
+        if (Delta < 0.0f && Health == HealthMin)
+        {
+            ASGameModeBase* GM = GetWorld()->GetAuthGameMode<ASGameModeBase>(); // auth == only on the server
+            if (GM != nullptr)
+            {
+                GM->OnActorKilled(GetOwner(), InstigatorActor);
+            }
+        }
     }
 
     return Changed;

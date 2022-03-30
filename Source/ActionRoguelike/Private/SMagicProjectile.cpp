@@ -6,6 +6,7 @@
 #include <Kismet/GameplayStatics.h>
 
 #include "ActionRoguelike/Public/SAttributeComponent.h"
+#include "ActionRoguelike/Public/SGameplayFunctionLibrary.h"
 
 void ASMagicProjectile::OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* OtherComp, const FHitResult& Hit)
 {
@@ -13,12 +14,14 @@ void ASMagicProjectile::OnOverlapActor(AActor* OtherActor, UPrimitiveComponent* 
 
     if (OtherActor != nullptr)
     {
-        USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+        /*USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
         if (AttributeComp != nullptr)
         {
             ensure(Damage > 0.0f);
             AttributeComp->ApplyHealthChange(GetInstigator(), -1.0f * Damage);
-        }
+        }*/
+
+        USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, Hit);
     }
 }
 
