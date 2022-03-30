@@ -116,6 +116,9 @@ public:
 
     virtual void PostInitializeComponents() override;
 
+    UFUNCTION(Exec)
+    void HealSelf(float Ammount = 100.0f);
+
 private:
     void PerformAbility(const FAbilityData& AbilityData);
     void PerformAbility_TimerElapsed(const FAbilityData& AbilityData);

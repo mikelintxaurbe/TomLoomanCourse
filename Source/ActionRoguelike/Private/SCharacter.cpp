@@ -150,6 +150,11 @@ void ASCharacter::PostInitializeComponents()
     AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
+void ASCharacter::HealSelf(float Ammount/* = 100.0f*/)
+{
+    AttributeComp->ApplyHealthChange(this, Ammount);
+}
+
 void ASCharacter::PerformAbility(const FAbilityData& AbilityData)
 {
     //UE_LOG(LogTemp, Log, TEXT("[%s] ASCharacter::PerformAbility()"), *GetNameSafe(this));
