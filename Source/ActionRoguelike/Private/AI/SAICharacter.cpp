@@ -85,27 +85,27 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 
     if (NewHealth <= 0.0f && Delta < 0.0f)
     {
-        SetActorEnableCollision(false);
-
+        // stop BT
         AAIController* AIC = Cast<AAIController>(GetController());
         if (AIC != nullptr)
         {
-            // stop BT
             //AIC->UnPossess();
             AIC->GetBrainComponent()->StopLogic("Killed");
-
-            // ragdoll
-            //GetMesh()->SetAllBodiesSimulatePhysics(true);
-            //GetMesh()->SetCollisionProfileName("Ragdoll");
-            // --> Death animation is managed in the Animation Blueprint <--
-
-            GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-            GetCharacterMovement()->DisableMovement();
-
-            // set lifespan
-            constexpr float TimeToDie = 10.0f;
-            SetLifeSpan(TimeToDie);
         }
+
+        // ragdoll
+        GetMesh()->SetAllBodiesSimulatePhysics(true);
+        GetMesh()->SetCollisionProfileName("Ragdoll");
+
+        // Death animation is managed in the Animation Blueprint
+
+        // stop movement and remove phantom collision
+        GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        GetCharacterMovement()->DisableMovement();
+
+        // set lifespan
+        constexpr float TimeToDie = 10.0f;
+        SetLifeSpan(TimeToDie);
     }
 }
 
