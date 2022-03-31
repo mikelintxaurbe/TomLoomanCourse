@@ -39,10 +39,43 @@ protected:
     void SpawnBotTimerElapsed();
 
     UFUNCTION()
-    void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+    void OnSpawnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
     UFUNCTION()
     void RespawnPlayerElapsed(AController* Controller);
+
+protected:
+
+    UPROPERTY(EditDefaultsOnly, Category = "GameMode | Scoring")
+    int32 CreditsGainedOnBotKill;
+
+    UPROPERTY(EditDefaultsOnly, Category = "GameMode | PowerUps")
+    UEnvQuery* SpawnPowerUpQuery;
+
+    UPROPERTY(EditDefaultsOnly, Category = "GameMode | PowerUps")
+    TSubclassOf<AActor> HealthPotionClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "GameMode | PowerUps", Meta = (ClampMin = "0"))
+    uint32 MaxHealthPotions = 5;
+
+    UPROPERTY(EditDefaultsOnly, Category = "GameMode | PowerUps")
+    TSubclassOf<AActor> CoinClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "GameMode | PowerUps", Meta = (ClampMin = "0"))
+    uint32 MaxCoins = 5;
+
+    void TryStartSpawnPowerUpQuery();
+
+    UFUNCTION()
+    void OnSpawnPowerUpQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+private:
+
+    bool CanSpawnPowerUp() const;
+
+    uint32 HealthPotionsPendingForSpawn = 0;
+
+    uint32 CoinsPendingForSpawn = 0;
 
 public:
 

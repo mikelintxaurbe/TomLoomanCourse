@@ -6,17 +6,25 @@
 #include <Components/SphereComponent.h>
 
 #include "ActionRogueLike/Public/SAttributeComponent.h"
+#include "ActionRoguelike/Public/SPlayerStateBase.h"
 
 bool ASHealthPotion::CanInteractWith(const APawn* InstigatorPawn) const
 {
     //UE_LOG(LogTemp, Log, TEXT("[%s] ASHealthPotion::CanInteractWith()"), *GetNameSafe(this));
 
-    if (USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass())))
+    USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
+    if (AttributeComponent == nullptr || AttributeComponent->GetHealth() >= AttributeComponent->GetHealthMax())
     {
-        return AttributeComponent->GetHealth() < AttributeComponent->GetHealthMax();
+        return false;
     }
 
-    return false;
+    ASPlayerStateBase* PlayerStateBase = InstigatorPawn->GetPlayerState<ASPlayerStateBase>();
+    if (PlayerStateBase != nullptr && PlayerStateBase->CanAffordCredits(CreditsCost) == false)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 void ASHealthPotion::DoInteraction(APawn* InstigatorPawn)
@@ -29,6 +37,12 @@ void ASHealthPotion::DoInteraction(APawn* InstigatorPawn)
     if (ensure(AttributeComponent != nullptr))
     {
         AttributeComponent->ApplyHealthChange(this, HealthRestored);
+    }
+
+    ASPlayerStateBase* PlayerStateBase = InstigatorPawn->GetPlayerState<ASPlayerStateBase>();
+    if (PlayerStateBase != nullptr)
+    {
+        PlayerStateBase->ApplyCreditsChange(-1.0f * CreditsCost);
     }
 }
 

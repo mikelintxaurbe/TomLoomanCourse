@@ -16,8 +16,11 @@ class ACTIONROGUELIKE_API ASHealthPotion : public ASBasePowerUp
 	
 public:
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Potion")
     float HealthRestored = 50.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Potion", Meta = (ClampMin = "0"))
+    int32 CreditsCost = 15;
 
 protected:
 
